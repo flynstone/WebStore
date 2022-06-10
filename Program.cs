@@ -1,5 +1,6 @@
 using Api.Data;
 using Api.Extensions;
+using Api.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -23,11 +24,13 @@ builder.Services.ConfigureCors();
 
 var app = builder.Build();
 
+app.UseMiddleware<ExceptionMiddleware>();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("swagger/v1/swagger.json", "Api v1"));
 }
 
 //app.UseHttpsRedirection();
