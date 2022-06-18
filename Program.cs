@@ -30,7 +30,7 @@ app.UseMiddleware<ExceptionMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("swagger/v1/swagger.json", "Api v1"));
+    app.UseSwaggerUI();
 }
 
 //app.UseHttpsRedirection();

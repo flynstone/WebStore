@@ -1,7 +1,10 @@
 ﻿using Api.Data;
+using Api.Extensions;
 using Api.Models;
+using Api.RequestHelpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Api.Controllers
 {
@@ -14,9 +17,22 @@ namespace Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Product>>> GetProducts()
+        public async Task<ActionResult<PagedList<Product>>> GetProducts([FromQuery]ProductParams productParams)
         {
-            return await _context.Products.ToListAsync();
+            // Query to get products.
+            var query = _context.Products
+                .Sort(productParams.OrderBy)
+                .Search(productParams.SearchTerm)
+                .Filter(productParams.Brands, productParams.Types)
+                .AsQueryable();  
+            
+            // Store paged list.
+            var products = await PagedList<Product>.ToPagedList(query, productParams.PageNumber, productParams.PageSize);
+
+            // Use class extension to create a custom http header.
+            Response.AddPaginationHeader(products.MetaData);
+
+            return products;
         }
 
         [HttpGet("{id}")]
@@ -27,6 +43,19 @@ namespace Api.Controllers
             if (product == null) return NotFound();
 
             return product;
+        }
+
+        // Get data from related tables.
+        [HttpGet("filters")]
+        public async Task<IActionResult> GetFilters()
+        {
+            // Get products by brand.
+            var brand = await _context.Products.Select(p => p.Brand).Distinct().ToListAsync();
+
+            // Get products by types.
+            var types = await _context.Products.Select(p => p.Type).Distinct().ToListAsync();
+
+            return Ok(new {brand, types});
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Api.Controllers
             _context = context;
         }
 
-        [HttpGet]
+        [HttpGet(Name = "GetBasket")]
         public async Task<ActionResult<BasketDto>> GetBasket()
         {
             // Get basket from private method.
@@ -44,7 +44,7 @@ namespace Api.Controllers
             var product = await _context.Products.FindAsync(productId);
 
             // Handle not found (404)
-            if (product == null) return NotFound();
+            if (product == null) return BadRequest(new ProblemDetails { Title = "Product not found"});
 
             // Step 4. Add item to basket
             basket.AddItem(product, quantity);
