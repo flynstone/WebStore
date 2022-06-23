@@ -4,7 +4,6 @@ using Api.Models;
 using Api.RequestHelpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 
 namespace Api.Controllers
 {

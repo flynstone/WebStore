@@ -1,11 +1,34 @@
 ﻿using Api.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Api.Data
 {
     public static class DbInitializer
     {
-        public static async Task Initialize(StoreContext context)
+        public static async Task Initialize(StoreContext context, UserManager<User> userManager)
         {
+            // Makes sure no users already exist in the database before creating.
+            if (!userManager.Users.Any())
+            {
+                var user = new User
+                {
+                    UserName = "guest",
+                    Email = "gest@test.com"
+                };
+
+                await userManager.CreateAsync(user, "Pa$$w0rd");
+                await userManager.AddToRoleAsync(user, "Member");
+
+                var admin = new User
+                {
+                    UserName = "admin",
+                    Email = "admin@test.com"
+                };
+
+                await userManager.CreateAsync(admin, "Pa$$w0rd");
+                await userManager.AddToRolesAsync(admin, new[] {"Member", "Admin"});
+            };
+
             // Make sure database is empty, if there is data return.
             if (context.Products.Any()) return;
 
